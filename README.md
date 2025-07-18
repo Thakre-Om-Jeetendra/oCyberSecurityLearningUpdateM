@@ -1,2 +1,2 @@
 # oCyberSecurityLearningUpdateM
-I am learning from tryhackme and will be tacking my progress through keeping notes daily.
+I am learning from TryHackMe and will be tracking my progress by keeping notes daily.
