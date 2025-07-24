@@ -1,4 +1,4 @@
-Day 9 23rd July 2025
+Day 9 and day 10 23rd and 24th July 2025
 
 # Linux Fundamentals - Part 1
 
@@ -155,7 +155,7 @@ the **"passwd"** and **"shadow"** files. These two files are special for Linux a
 - This is bilateral meaning copy files & directories from your current system to a remote system and Copy files & directories from a remote system to your current system.
 - Provided that we know usernames and passwords for a user on your current system and a user on the remote system.
 
-- If we want to send a copy file to remote computer:
+- If we want to **send** a copy file to remote computer:
 
     scp important.txt ubuntu@192.168.1.30:/home/ubuntu/transferred.txt
 
@@ -164,17 +164,151 @@ imporatant.txt - with whom?
 ubuntu@192.168.1.30: - for who?
 /home/ubuntu/transferred.txt - where exactly?
 
-- Reverse this thing, if you want to copy something from the remote computer to the main one:
+- Reverse this thing, if you want to **copy** something from the remote computer to the main one:
 
-    scp ubuntu@192.168.1.30:/home/ubuntu/documents.txt notes.txt 
+    scp ubuntu@192.168.1.30:/home/ubuntu/documents.txt/notes.txt ~/
     
 scp - what to do?
 ubuntu@192.168.1.30: - from whom to take
 /home/ubuntu/documents.txt - from where exactly
-notes.txt  - what to take
+/notes.txt  - what to take
+~/ do not forget this. this is where you want your incoming file
+
+- TCP is used in these two process.
+
+## Serving file from host -web
+
+- By default python is preinstalled in ubuntus. 
+- Python allows user to use its own server to host their files.
+- The module called "HTTPServer". This server turns your computer into quick and easy webserver. Here you can upload your files and another computer can easily download them.
+- ` python3 -m http.server ` use this to activate the server. Now, your server is activated it will show port 8000.
+- Now to work on other commands you have to start another terminal. Remember the terminal with python terminal should keep running in the background.
+- wget http://10.10.184.254:8000/myfile
+    wget - to get the file
+    http:// - protocol invocation
+    10.10.184.254: - ip address of the target machine
+    /myfile - the file that needs to be downloaded
+
+## Process 101
+- Process are the programs that are running on your machine.
+- They have their own ids called pid.
+- The 60th process will have a pid of 60
+- use **ps** to view this processes
+    - This will show you general info like name of the program or command. Session it is running, etc.
+    - If you use ps for second time you will see that the pid of *the current ps* has inceremented to 1 compared to the previous observation of ps command.
+- To know about programs that other users and those that don't run from session(i.e. system processes) we use **ps -aux**. *Again aux is used to know what programs others are running, they won't show up on ps.*
+    - we now have "root"  and "cmnatic".
+- Use **top** command to know the real time statistic instead of a one time view
+    - top will refresh every 10 sec and when user uses this arrows key to brower over.
+
+### Managing Processes
+- To kill a command we use **kill** and the associated pid that we wish to kill. If we want to kill PID1338 then `kill 1338`. **Use for low level process not on system level**.
+- Below are some of the signals that we can send to a process when it is killed:
+    - SIGTERM - Kill the process, but allow it to do some cleanup tasks beforehand. This is to do a clean kill.
+    - SIGKILL - Kill the process - doesn't do any cleanup after the fact
+    - SIGSTOP - Stop/suspend a process
+
+### How do a process starts:
+- The Operating System (OS) uses **namespaces to ultimately split up the resources** available on the computer to (such as CPU, RAM and priority) processes. Think of it as splitting your computer up into slices -- similar to a cake. Processes within that slice will have access to a certain amount of computing power, however, it will be a small portion of what is actually available to every process overall.
+
+- Namespaces are great for security as it is a way of isolating processes from another -- only those that are in the same namespace will be able to see each other.
+
+- The process with an ID of 0 is a process that is started when the system boots.
+
+- Once a system boots and it initialises, **systemd is one of the first processes that are started**. Any program or piece of software that we want to start will start as what's known as a **child process of systemd**. This means that it is controlled by systemd, but will run as its own process (although sharing the resources from systemd) to make it easier for us to identify and the likes.
+
+### Getting processes start on boot
+- Some applications can be started on the boot of the system that we own. For example, web servers, database servers or file transfer servers. This software is often critical and is often told to start during the boot-up of the system by administrators.
+
+- To start a process at boot use **`systemct1`-- this command allows us to interact with the systemd process/daemon. `systemctl [option] [service]`.** 
+    - For example, to tell apache to start up, we'll use systemctl start apache2. Seems simple enough, right? Same with if we wanted to stop apache, we'd just replace the [option] with stop (instead of start like we provided).
+    - **Use this for hig level aka system level service**.
+- We can do four options with systemctl:
+    - Start
+    - Stop
+    - Enable
+    - Disable
+
+### An Introduction to Backgrounding and Foregrounding in Linux
+- echo is a foreground command. Whatevery you type in echo you get it right back on foreground.
+- E.g.: echo hi & [1] 16889.
+    here echo is foreground command. & is asking [1]16889 to run in the background.
+    [1]16889 will be completed but it is running in background and you won't see it.
+
+- This is great for commands such as copying files because it means that we can run the command in the background and continue on with whatever further commands we wish to execute (without having to wait for the file copy to finish first)
+
+- We can use **ctrl + z** instead of & this key can also be *used in pausing a background process.*
+
+### Foregrounding a process
+- to foreground a process that is running in background using ctrl + z or &, type **fg** to bring back the focus to foreground. Now the process will be display in the foreground.
 
 
+## Maintaining Your System: Automation
+User may want to schedule a certain action or task to take place after the system has booted. E.g backing up a file or opening sportify as soon as the interface starts.
 
+We are going to use **`cron`process** and how we can *interact* with it using **`crontabs`.**
+Crontab is one of the process that starts when system boots.
+
+A crontab is simply a special file with formatting that is recognised by the cron process to execute each line step-by-step. Crontabs require 6 specific values:
+    - MIN- What minute to execute at
+    - hour- what hour to execute at
+    - dom- what day of month to execute at
+    - mon- what month of the year to execute at
+    - dow- What day of the week to execute at
+    - cmd- The actual command that will be executed.
+
+Let's say we wish to backup file name "cprtf" from directory "documents" every 12 hrs. that would be: 0 */12 * * * cp -R /home/cmnatic/Documents /var/backups/
+    If we do not wish to provide a value for that specific field, i.e. we don't care what month, day, or year it is executed -- only that it is executed every 12 hours, we simply just place an asterisk.
+
+This is hella confusing but luckily we got sites like [crontabgenerator](https://crontab-generator.org/) and [Cron Guru](https://crontab.guru/) to help us out.
+
+Crontab can be edited using **`crontab -e`** just link nano.
+
+Use **crontab -l** is used to list (display) the current user's cron jobs (scheduled tasks) in the crontab file.
+
+## Maintaining Your System: Package Management
+### Introducing Packages & Software Repos
+At linux we have **apt**. Just like ms store this place holds apps. When developers wish to submit software to the community, they will submit it to an  "apt" repository. If approved, their programs and tools will be released into the wild. 
+
+This softwares are not part of the linux distro but are open projects that anyone can download and use.
+
+Whilst Operating System vendors will maintain their own repositories, you can also add community repositories to your list! This allows you to extend the capabilities of your OS. Additional repositories can be added by using the add-apt-repositorycommand or by listing another provider! For example, some vendors will have a repository that is closer to their geographical location.
+
+### Managing Your Repositories (Adding and Removing)
+Use **apt** command to install software.
+apt command is a part of apt software. This comes pre-installed in most of the linux distros.
+
+**To add** repositories use `add-apt-repository`.
+Whilst you can *install software* through the use of package installers such as **dpkg**, the benefits of apt means that whenever we update our system -- the repository that contains the pieces of software that we add also gets checked for updates. 
+
+When adding software, the integrity of what we *download* is *guaranteed* by the use of what is called **GPG (Gnu Privacy Guard) keys.**
+These keys are essentially a safety check from the developers saying, "here's our software". If the keys do not match up to what your system trusts and what the developers used, then the software will not be downloaded.
+
+1. Let's download the GPG key and use apt-key to trust it:  wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
+
+2. Now that we have added this key to our trusted list, we can now add Sublime Text 3's repository to our apt sources list. A good practice is to have a separate file for every different community/3rd party repository that we add.
+
+2.1. Let's create a file named sublime-text.list in /etc/apt/sources.list.d and enter the repository info.
+
+2.2. And now use Nano or a text editor of your choice to add & save the Sublime Text 3 repository into this newly created file:
+deb https://download.subl tmetext.com/ apt/ stable/
+
+2.3. After we have added this entry, we need to update apt to recognise this new entry -- this is done using the apt update command
+
+2.4. Once successfully updated, we can now proceed to install the software that we have trusted and added to apt using apt install sublime-text
+
+Removing packages is as easy as reversing. This process is done by using the add-apt-repository --remove ppa:PPA_Name/ppa command or by manually deleting the file that we previously added to. Once removed, we can just use apt remove [software-name-here] i.e. apt remove sublime-text
+
+## Maintaining Your System: Logs
+Located in the /var/log directory, these files and folders contain logging information for applications and services running on your system. The Operating System  (OS) has become pretty good at automatically managing these logs in a process that is known as "rotating".
+
+These services and logs are a great way in monitoring the health of your system and protecting it. Not only that, but the logs for services such as a web server contain information about every single request - allowing developers or administrators to diagnose performance issues or investigate an intruder's activity. For example, the two types of log files below that are of interest:
+    - access log
+    - error log
+
+There are, of course, logs that store information about how the OS is running itself and actions that are performed by users, such as authentication attempts.
+
+Access logs are useful they will help you to know who used what and when.
 
 
 
