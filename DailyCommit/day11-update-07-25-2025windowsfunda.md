@@ -175,7 +175,7 @@ three primary sections:
 - `ipconfig` to know your current ip
 - `/?` this `man` of windows. E.g. `ipconfig /?` will show you the manual.
 - `cls` to clear the command screen.
-- `netstat`Per the help manual, this command will display protocol statistics and current TCP/IP network connections. It has different useful parameters.
+- `netstat`Per the help manual, this command will display protocol statistics and current TCP/IP network connections. It has different useful parameters. `ss` in linux
 - `net` If you type net without a sub-command, the output will show the syntax for the root command showing a few of the sub-commands you can use.
     - `/?` this will not work for`net` you have to use `nethelp`.
     -  if you wish to see the help information for net user , the command is net help user.
