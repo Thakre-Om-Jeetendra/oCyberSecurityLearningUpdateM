@@ -2,6 +2,7 @@
 
 # Windows PowerShell
 
+If your folder or file has a space between them use "<name>" this to wrap it.
 ## What Is PowerShell:
 
 It combines command line and scripting language. It is designed for task automation and configuration management. 
